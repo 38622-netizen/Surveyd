@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบสอบถามความถนัด</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #5959f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #424549;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        h1, p {
+            text-align: center;
+            color: #ffff;
+            margin-bottom: 30px;
+        }
+        .question-page {
+            display: none;
+        }
+        .question-page.active {
+            display: block;
+        }
+        .question-box {
+            background-color: #36393e;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-radius: 8px;
+            border-left: 5px solid #007bff;
+        }
+        .question-box p {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #ffff;
+            margin-top: 0;
+            text-align: left;
+        }
+        .options label {
+            display: block;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .options label:hover {
+            background-color: #e2e6ea;
+        }
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        #prevBtn {
+            background-color: #6c757d;
+            color: white;
+        }
+        #prevBtn:hover {
+            background-color: #5a6268;
+        }
+        #nextBtn, #submitBtn {
+            background-color: #007bff;
+            color: white;
+        }
+        #nextBtn:hover, #submitBtn:hover {
+            background-color: #0056b3;
+        }
+        #submitBtn {
+            width: 100%;
+        }
+        #result {
+            margin-top: 30px;
+            text-align: center;
+            display: none;
+        }
+        .chart-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 250px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+            box-sizing: content-box;
+            margin-top: 20px;
+        }
+        .bar {
+            width: 45%;
+            min-height: 5px;
+            height: 0;
+            transition: height 0.6s ease-in-out;
+            position: relative;
+        }
+        #sciMathBar {
+            background-color: #007bff;
+            border-radius: 5px 5px 0 0;
+        }
+        #artBar {
+            background-color: #dc3545;
+            border-radius: 5px 5px 0 0;
+        }
+        .bar-label {
+            position: absolute;
+            width: 100%;
+            bottom: -25px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9em;
+            color: #ffff;
+        }
+        .bar-value {
+            position: absolute;
+            width: 100%;
+            top: -25px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            color: #ffff;
+        }
+        #recommendation {
+            margin-top: 40px;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #eaf6ff;
+            border: 1px solid #d1e7fd;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 100%;
+            width: 0%;
+            background-color: #28a745;
+            border-radius: 10px;
+            transition: width 0.4s ease;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            .chart-container {
+                height: 200px;
+            }
+            .bar-label, .bar-value {
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="mainTitle">แบบสอบถามความถนัด</h1>
+        <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+        </div>
+        <form id="quizForm">
+            <div class="question-page active" data-page="1">
+                <div class="question-box">
+                    <p>1. เวลามีโจทย์คำนวณยาก ๆ คุณรู้สึกอย่างไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q1" value="A"> A. ตื่นเต้นและอยากหาคำตอบ</label>
+                        <label><input type="radio" name="q1" value="B"> B. เฉย ๆ พอทำได้ก็ทำ</label>
+                        <label><input type="radio" name="q1" value="C"> C. รู้สึกเครียดแต่พยายาม</label>
+                        <label><input type="radio" name="q1" value="D"> D. อยากเลี่ยงไปทำอย่างอื่น</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="2">
+                <div class="question-box">
+                    <p>2. ถ้าให้เลือกทำโปรเจกต์ คุณจะเลือกแบบไหน?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q2" value="A"> A. ทดลองทางวิทยาศาสตร์แล้วเขียนรายงาน</label>
+                        <label><input type="radio" name="q2" value="B"> B. ทำแบบจำลองหรือสิ่งประดิษฐ์</label>
+                        <label><input type="radio" name="q2" value="C"> C. สร้างงานศิลปะหรือการออกแบบ</label>
+                        <label><input type="radio" name="q2" value="D"> D. ทำวิดีโอ/ละคร/บทความสร้างสรรค์</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="3">
+                <div class="question-box">
+                    <p>3. เวลาศึกษาข้อมูล คุณชอบเน้นอะไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q3" value="A"> A. ตัวเลขและข้อมูลเชิงสถิติ</label>
+                        <label><input type="radio" name="q3" value="B"> B. ขั้นตอนและกระบวนการ</label>
+                        <label><input type="radio" name="q3" value="C"> C. เรื่องราวและความคิดสร้างสรรค์</label>
+                        <label><input type="radio" name="q3" value="D"> D. ภาพรวมและความรู้รอบตัว</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="4">
+                <div class="question-box">
+                    <p>4. คุณรู้สึกสนุกกับวิชาไหนมากที่สุด?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q4" value="A"> A. คณิตศาสตร์</label>
+                        <label><input type="radio" name="q4" value="B"> B. วิทยาศาสตร์</label>
+                        <label><input type="radio" name="q4" value="C"> C. ภาษาไทย/ภาษาอังกฤษ</label>
+                        <label><input type="radio" name="q4" value="D"> D. ศิลปะ/ดนตรี</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="5">
+                <div class="question-box">
+                    <p>5. ถ้าให้เลือกอาชีพในอนาคต คุณจะเลือกอะไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q5" value="A"> A. วิศวกร, นักวิจัย</label>
+                        <label><input type="radio" name="q5" value="B"> B. แพทย์, เภสัชกร</label>
+                        <label><input type="radio" name="q5" value="C"> C. นักแปล, ครูภาษา</label>
+                        <label><input type="radio" name="q5" value="D"> D. นักออกแบบ, นักแสดง</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="6">
+                <div class="question-box">
+                    <p>6. เวลาทำงานกลุ่ม คุณมักรับหน้าที่อะไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q6" value="A"> A. คำนวณและวิเคราะห์ข้อมูล</label>
+                        <label><input type="radio" name="q6" value="B"> B. ออกแบบขั้นตอนและแผนงาน</label>
+                        <label><input type="radio" name="q6" value="C"> C. เขียนเนื้อหา/เล่าเรื่อง</label>
+                        <label><input type="radio" name="q6" value="D"> D. จัดรูปแบบและความสวยงาม</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="7">
+                <div class="question-box">
+                    <p>7. คุณชอบการเรียนแบบไหนมากกว่า?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q7" value="A"> A. ทดลองและใช้เหตุผลเชิงตรรกะ</label>
+                        <label><input type="radio" name="q7" value="B"> B. ทำแบบฝึกหัดโจทย์ยาก</label>
+                        <label><input type="radio" name="q7" value="C"> C. สร้างผลงานที่มีความคิดสร้างสรรค์</label>
+                        <label><input type="radio" name="q7" value="D"> D. อภิปรายแลกเปลี่ยนความคิดเห็น</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="8">
+                <div class="question-box">
+                    <p>8. เวลาว่างคุณมักทำอะไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q8" value="A"> A. เล่นเกมฝึกสมองหรือคณิต</label>
+                        <label><input type="radio" name="q8" value="B"> B. อ่านหนังสือวิทยาศาสตร์</label>
+                        <label><input type="radio" name="q8" value="C"> C. อ่านนิยาย/ดูหนัง</label>
+                        <label><input type="radio" name="q8" value="D"> D. วาดรูป/แต่งเพลง</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="9">
+                <div class="question-box">
+                    <p>9. ถ้าต้องแก้ปัญหาซับซ้อน คุณจะทำอย่างไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q9" value="A"> A. แยกเป็นขั้นตอนและใช้สูตร/วิธีการ</label>
+                        <label><input type="radio" name="q9" value="B"> B. ทดลองหลายวิธีจนเจอคำตอบ</label>
+                        <label><input type="radio" name="q9" value="C"> C. ใช้จินตนาการหาทางออกใหม่</label>
+                        <label><input type="radio" name="q9" value="D"> D. ถามความคิดเห็นคนรอบข้าง</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="10">
+                <div class="question-box">
+                    <p>10. คุณให้ความสำคัญกับสิ่งไหนมากที่สุด?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q10" value="A"> A. ความแม่นยำของข้อมูล</label>
+                        <label><input type="radio" name="q10" value="B"> B. กระบวนการที่ถูกต้อง</label>
+                        <label><input type="radio" name="q10" value="C"> C. ความสวยงามของผลงาน</label>
+                        <label><input type="radio" name="q10" value="D"> D. ความเข้าใจและความรู้สึกของผู้ชม/ผู้อ่าน</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="11">
+                <div class="question-box">
+                    <p>11. เวลามีข้อมูลเยอะ ๆ คุณจะจัดการอย่างไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q11" value="A"> A. แบ่งหมวดหมู่และวิเคราะห์</label>
+                        <label><input type="radio" name="q11" value="B"> B. ทำตารางหรือกราฟสรุป</label>
+                        <label><input type="radio" name="q11" value="C"> C. เลือกเฉพาะที่น่าสนใจมาเล่า</label>
+                        <label><input type="radio" name="q11" value="D"> D. สร้างเรื่องราวประกอบเพื่อให้เข้าใจง่าย</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="12">
+                <div class="question-box">
+                    <p>12. คุณรู้สึกอย่างไรกับการเรียนฟิสิกส์/เคมี?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q12" value="A"> A. สนุกและท้าทาย</label>
+                        <label><input type="radio" name="q12" value="B"> B. ยากแต่พยายามทำความเข้าใจ</label>
+                        <label><input type="radio" name="q12" value="C"> C. ไม่ค่อยชอบ เพราะมีสูตรเยอะ</label>
+                        <label><input type="radio" name="q12" value="D"> D. อยากเรียนวิชาอื่นแทนมากกว่า</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="13">
+                <div class="question-box">
+                    <p>13. ถ้าได้โอกาสเข้าร่วมกิจกรรมพิเศษ คุณจะเลือกอะไร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q13" value="A"> A. ค่ายวิทยาศาสตร์</label>
+                        <label><input type="radio" name="q13" value="B"> B. การแข่งขันคณิตศาสตร์</label>
+                        <label><input type="radio" name="q13" value="C"> C. ชุมนุมละคร/ดนตรี</label>
+                        <label><input type="radio" name="q13" value="D"> D. ค่ายภาษา/การเขียน</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="14">
+                <div class="question-box">
+                    <p>14. คุณมักสนใจเนื้อหาประเภทใดในข่าวสาร?</p>
+                    <div class="options">
+                        <label><input type="radio" name="q14" value="A"> A. ข่าวเทคโนโลยีหรือการค้นพบทางวิทยาศาสตร์</label>
+                        <label><input type="radio" name="q14" value="B"> B. ข่าวเศรษฐกิจและตัวเลขสถิติ</label>
+                        <label><input type="radio" name="q14" value="C"> C. ข่าวศิลปะ วัฒนธรรม บันเทิง</label>
+                        <label><input type="radio" name="q14" value="D"> D. เรื่องราวบุคคลและแรงบันดาลใจ</label>
+                    </div>
+                </div>
+            </div>
+            <div class="question-page" data-page="15">
+                <div class="question-box">
+                    <p>15. เวลาต้องทำรายงานส่งครู คุณจะ…</p>
+                    <div class="options">
+                        <label><input type="radio" name="q15" value="A"> A. ทำการค้นคว้าเชิงวิชาการลึก ๆ</label>
+                        <label><input type="radio" name="q15" value="B"> B. ใช้ข้อมูลตัวเลขสนับสนุนเยอะ ๆ</label>
+                        <label><input type="radio" name="q15" value="C"> C. เน้นการเขียนให้เนื้อหาน่าอ่าน</label>
+                        <label><input type="radio" name="q15" value="D"> D. ตกแต่งรายงานให้สวยงาม</label>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="button" id="prevBtn" style="display:none;">ย้อนกลับ</button>
+                <button type="button" id="nextBtn">ถัดไป</button>
+                <button type="submit" id="submitBtn" style="display:none;">ส่งแบบสอบถาม</button>
+            </div>
+        </form>
+        <div id="result">
+            <h2 id="resultTitle">ผลลัพธ์แบบทดสอบ</h2>
+            <div class="chart-container">
+                <div class="bar" id="sciMathBar">
+                    <div class="bar-value" id="sciMathValue"></div>
+                    <div class="bar-label">วิทย์-คณิต</div>
+                </div>
+                <div class="bar" id="artBar">
+                    <div class="bar-value" id="artValue"></div>
+                    <div class="bar-label">ศิลป์-ภาษา</div>
+                </div>
+            </div>
+            <div id="recommendation"></div>
+        </div>
+    </div>
+    <script>
+        const quizForm = document.getElementById('quizForm');
+        const questionPages = document.querySelectorAll('.question-page');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const resultDiv = document.getElementById('result');
+        const progressBar = document.getElementById('progressBar');
+        const mainTitle = document.getElementById('mainTitle');
+        const totalQuestions = questionPages.length;
+        let currentPage = 0;
+
+        showPage(currentPage);
+
+        function showPage(pageIndex) {
+            questionPages.forEach(page => page.classList.remove('active'));
+            questionPages[pageIndex].classList.add('active');
+
+            prevBtn.style.display = (pageIndex === 0) ? 'none' : 'block';
+            nextBtn.style.display = (pageIndex === totalQuestions - 1) ? 'none' : 'block';
+            submitBtn.style.display = (pageIndex === totalQuestions - 1) ? 'block' : 'none';
+
+            const progress = ((pageIndex + 1) / totalQuestions) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        // แก้ไข: เพิ่มการตรวจสอบก่อนไปหน้าถัดไป
+        nextBtn.addEventListener('click', () => {
+            const currentQuestionName = `q${currentPage + 1}`;
+            const selectedOption = document.querySelector(`input[name="${currentQuestionName}"]:checked`);
+            
+            if (selectedOption) {
+                if (currentPage < totalQuestions - 1) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            } else {
+                alert('กรุณาเลือกคำตอบก่อนไปหน้าถัดไป');
+            }
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        });
+
+        // แก้ไข: เปลี่ยนเงื่อนไขการตรวจสอบในปุ่ม Submit
+        quizForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const allQuestionsAnswered = Array.from(questionPages).every((page, index) => {
+                const questionName = `q${index + 1}`;
+                return document.querySelector(`input[name="${questionName}"]:checked`) !== null;
+            });
+
+            if (!allQuestionsAnswered) {
+                alert('กรุณาตอบคำถามให้ครบทุกข้อก่อนส่งแบบสอบถาม');
+                return;
+            }
+
+            let sciMathCount = 0;
+            let artCount = 0;
+            
+            for (let i = 1; i <= totalQuestions; i++) {
+                const answer = document.querySelector(`input[name="q${i}"]:checked`);
+                if (answer) {
+                    const value = answer.value;
+                    if (value === 'A' || value === 'B') {
+                        sciMathCount++;
+                    } else if (value === 'C' || value === 'D') {
+                        artCount++;
+                    }
+                }
+            }
+            
+            quizForm.style.display = 'none';
+            progressBar.parentElement.style.display = 'none';
+            mainTitle.textContent = 'ผลลัพธ์แบบทดสอบ';
+            
+            resultDiv.style.display = 'block';
+
+            const maxCount = Math.max(sciMathCount, artCount, 1);
+            const sciMathHeight = (sciMathCount / maxCount) * 100;
+            const artHeight = (artCount / maxCount) * 100;
+
+            const sciMathBar = document.getElementById('sciMathBar');
+            const artBar = document.getElementById('artBar');
+            const sciMathValue = document.getElementById('sciMathValue');
+            const artValue = document.getElementById('artValue');
+            
+            sciMathBar.style.height = `${sciMathHeight}%`;
+            artBar.style.height = `${artHeight}%`;
+            
+            sciMathValue.textContent = `${sciMathCount} ข้อ`;
+            artValue.textContent = `${artCount} ข้อ`;
+
+            const recommendationDiv = document.getElementById('recommendation');
+            let recommendationText = '';
+            if (sciMathCount > artCount) {
+                recommendationText = 'จากผลลัพธ์ สายวิทย์-คณิตน่าจะเหมาะกับคุณที่สุด';
+            } else if (artCount > sciMathCount) {
+                recommendationText = 'จากผลลัพธ์ สายศิลป์-ภาษาน่าจะเหมาะกับคุณที่สุด';
+            } else {
+                recommendationText = 'จากผลลัพธ์ คุณมีความถนัดทั้งสองเท่ากันเพราะฉะนั้นเลือกเส้นทางของคุณเลย';
+            }
+            recommendationDiv.innerHTML = recommendationText;
+        });
+    </script>
+</body>
+</html>
